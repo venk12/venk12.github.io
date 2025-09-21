@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>{{ article.title }}</h1>
+
+<div class="article-content">
+    {% for block in article.blocks %}
+        {% if block.block_type == 'text' %}
+            <p>{{ block.content }}</p>
+        {% elif block.block_type == 'image' %}
+            <img src="{{ block.content }}" alt="Article Image">
+        {% elif block.block_type == 'markdown' %}
+            <div class="markdown-content">{{ block.content | markdown | safe }}</div>
+        {% elif block.block_type == 'code' %}
+            <pre><code>{{ block.content }}</code></pre>
+        {% elif block.block_type == 'video' %}
+            <video controls src="{{ block.content }}"></video>
+        {% endif %}
+    {% endfor %}
+</div>
+
+<p><a href="/articles">Back to Articles</a> | <a href="/articles/{{ article.id }}/edit">Edit Article</a></p>
+
+{% endblock %}
