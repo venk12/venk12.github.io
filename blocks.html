@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Blocks Registry</title>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50">
+  <!-- Header / Nav -->
+  <section id="block-header" class="bg-white border-b">
+    <header class="max-w-5xl mx-auto flex items-center justify-between p-4">
+      <a href="index.html" class="text-xl font-bold tracking-tight">Nebula Notes</a>
+      <nav hx-boost="true" class="flex gap-4 text-sm">
+        <a class="hover:underline" href="index.html">Home</a>
+        <a class="hover:underline" href="posts.html">Posts</a>
+        <a class="hover:underline" href="about.html">About</a>
+        <a class="hover:underline" href="archive.html">Archive</a>
+      </nav>
+    </header>
+  </section>
+
+  <!-- Footer -->
+  <section id="block-footer" class="bg-white border-t">
+    <footer class="max-w-5xl mx-auto p-6 text-sm text-slate-600">
+      <div class="flex items-center justify-between">
+        <p>&copy; <span id="year"></span> Nebula Notes — Weird, warm, and a bit nerdy.</p>
+        <p>Powered by HTMX + Tailwind</p>
+      </div>
+      <script>
+        document.currentScript.previousElementSibling.querySelector("#year").textContent = new Date().getFullYear();
+      </script>
+    </footer>
+  </section>
+
+  <!-- HERO -->
+  <section id="block-hero" class="bg-gradient-to-br from-indigo-50 to-sky-50 border-b">
+    <div class="max-w-5xl mx-auto py-16 px-6">
+      <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900">
+        Thinking in Public
+      </h1>
+      <p class="mt-4 text-lg text-slate-700 max-w-2xl">
+        A cozy weblog of experiments, field notes, and small epiphanies. Expect philosophy, code snippets, and the occasional cosmic haiku.
+      </p>
+      <!-- Cross-reference: include a quote block into the hero -->
+      <div class="mt-6">
+        <div class="rounded-xl border bg-white/70 p-4" 
+             hx-get="blocks.html" 
+             hx-select="#block-quote"
+             hx-trigger="load">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sidebar -->
+  <section id="block-sidebar" class="bg-white rounded-2xl border p-4">
+    <h2 class="font-semibold mb-3">About This Place</h2>
+    <p class="text-sm text-slate-700">
+      Built from small, composable blocks. The content rearranges the same way Lego does—click and snap.
+    </p>
+    <div class="mt-4 text-xs text-slate-500">
+      <p>Follow the crumbs:</p>
+      <ul class="list-disc ml-4 mt-2">
+        <li><a class="underline" href="about.html" hx-boost="true">What is this?</a></li>
+        <li><a class="underline" href="posts.html" hx-boost="true">Latest posts</a></li>
+        <li><a class="underline" href="archive.html" hx-boost="true">Archive</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Quote (reusable, referenced by others) -->
+  <section id="block-quote" class="bg-white rounded-xl border p-5">
+    <blockquote class="italic text-slate-700">
+      “Reality is that which, when you stop believing in it, doesn't go away.”
+    </blockquote>
+    <p class="mt-2 text-right text-sm text-slate-500">— Philip K. Dick</p>
+  </section>
+
+  <!-- Gallery -->
+  <section id="block-gallery" class="bg-white rounded-2xl border p-4">
+    <h2 class="font-semibold mb-4">Photo Fragments</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <img class="rounded-lg object-cover aspect-square" src="https://picsum.photos/seed/gal1/400" alt="random" />
+      <img class="rounded-lg object-cover aspect-square" src="https://picsum.photos/seed/gal2/400" alt="random" />
+      <img class="rounded-lg object-cover aspect-square" src="https://picsum.photos/seed/gal3/400" alt="random" />
+      <img class="rounded-lg object-cover aspect-square" src="https://picsum.photos/seed/gal4/400" alt="random" />
+    </div>
+  </section>
+
+  <!-- Post Cards (3 samples) -->
+  <section id="block-post-1" class="bg-white rounded-2xl border overflow-hidden">
+    <img class="w-full h-44 object-cover" src="https://picsum.photos/seed/post1/800/300" alt="cover">
+    <div class="p-4">
+      <h3 class="font-semibold text-lg">The Day I Debugged a Thought</h3>
+      <p class="text-sm text-slate-700 mt-1">A method for catching slippery ideas with breakpoints and curiosity.</p>
+      <div class="mt-3 flex items-center justify-between">
+        <a class="text-sm underline" href="posts.html" hx-boost="true">Read more</a>
+        <!-- Cross-reference: inline include of a tiny quote -->
+        <span class="text-xs text-slate-500" 
+              hx-get="blocks.html" 
+              hx-select="#block-quote" 
+              hx-trigger="load"
+              hx-swap="outerHTML">
+          <!-- replaced by quote -->
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section id="block-post-2" class="bg-white rounded-2xl border overflow-hidden">
+    <img class="w-full h-44 object-cover" src="https://picsum.photos/seed/post2/800/300" alt="cover">
+    <div class="p-4">
+      <h3 class="font-semibold text-lg">A Tiny History of Side Projects</h3>
+      <p class="text-sm text-slate-700 mt-1">Why unfinished experiments are the compost pile of invention.</p>
+      <div class="mt-3">
+        <a class="text-sm underline" href="posts.html" hx-boost="true">Read more</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="block-post-3" class="bg-white rounded-2xl border overflow-hidden">
+    <img class="w-full h-44 object-cover" src="https://picsum.photos/seed/post3/800/300" alt="cover">
+    <div class="p-4">
+      <h3 class="font-semibold text-lg">Maps for Ideas You Haven’t Had Yet</h3>
+      <p class="text-sm text-slate-700 mt-1">Make mental scaffolding first; let insights arrive when they’re ready.</p>
+      <div class="mt-3">
+        <a class="text-sm underline" href="posts.html" hx-boost="true">Read more</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Timeline / Archive -->
+  <section id="block-timeline" class="bg-white rounded-2xl border p-4">
+    <h2 class="font-semibold mb-3">Archive Highlights</h2>
+    <ol class="relative border-s border-slate-200 ml-3">
+      <li class="ms-4 mb-6">
+        <div class="absolute w-3 h-3 bg-indigo-500 rounded-full -start-1.5 mt-2"></div>
+        <time class="text-xs text-slate-500">2025-03-01</time>
+        <h4 class="font-medium">On the Care & Feeding of Side Quests</h4>
+        <p class="text-sm text-slate-700">A field guide for playful detours.</p>
+      </li>
+      <li class="ms-4 mb-6">
+        <div class="absolute w-3 h-3 bg-indigo-500 rounded-full -start-1.5 mt-2"></div>
+        <time class="text-xs text-slate-500">2024-10-18</time>
+        <h4 class="font-medium">Constraint as a Creative Partner</h4>
+        <p class="text-sm text-slate-700">When rules don’t limit you—they aim you.</p>
+      </li>
+      <li class="ms-4">
+        <div class="absolute w-3 h-3 bg-indigo-500 rounded-full -start-1.5 mt-2"></div>
+        <time class="text-xs text-slate-500">2024-05-07</time>
+        <h4 class="font-medium">You Don’t Find Voice; You Practice It</h4>
+        <p class="text-sm text-slate-700">Write badly. Then edit kindly.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- About block -->
+  <section id="block-about" class="bg-white rounded-2xl border p-6">
+    <h2 class="font-semibold text-xl">About Nebula Notes</h2>
+    <p class="mt-2 text-slate-700">
+      This weblog is a laboratory for ideas: a safe place for half-baked theories to get a little sun.
+    </p>
+    <div class="mt-4">
+      <!-- Cross-reference: include gallery -->
+      <div hx-get="blocks.html" hx-select="#block-gallery" hx-trigger="load"></div>
+    </div>
+  </section>
+</body>
+</html>
