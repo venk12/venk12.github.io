@@ -8,7 +8,7 @@
     async function fetchText(path) {
       const res = await fetch(encodeURI(path));
       if (!res.ok) throw new Error('Failed to fetch ' + path);
-      return await res.text();h
+      return await res.text();
     }
 
     async function loadPagesList() {
@@ -46,8 +46,8 @@
       return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
     }
     function linkify(s){
-      return s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    }
+  return s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+}
 
     async function showPage(path){
       const container = document.getElementById('page');
@@ -88,3 +88,19 @@
     <div id="page"></div>
 </body>
 </html>
+
+
+    function strongEmphasis(s){
+      // bold **text** or __text__
+      s = s.replace(/(\*\*|__)(.*?)\1/g, '<strong>$2</strong>');
+      // italic *text* or _text_
+      s = s.replace(/(\*|_)([^\s][^]*?[^\s])\1/g, '<em>$2</em>');
+      // inline code `code`
+      s = s.replace(/`([^`]+)`/g, (_,c)=>'<code>'+escapeHtml(c)+'</code>');
+      return s;
+    }
+
+    function inline(text){
+      return strongEmphasis(linkify(escapeHtml(text)));
+    }
+
