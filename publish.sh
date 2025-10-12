@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# regenerate pages.json before committing
+if bash ./generate_pages_json.sh; then
+  echo "📝 pages.json regenerated."
+else
+  echo "❌ Failed to generate pages.json"; exit 1
+fi
+
 # Add all changes
 if git add .; then
   echo "✅ Files staged successfully."

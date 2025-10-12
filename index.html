@@ -4,10 +4,87 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Weblog</title>
-  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script>
+    async function fetchText(path) {
+      const res = await fetch(encodeURI(path));
+      if (!res.ok) throw new Error('Failed to fetch ' + path);
+      return await res.text();h
+    }
+
+    async function loadPagesList() {
+      const listEl = document.getElementById('list');
+      listEl.innerHTML = 'Loading...';
+      try {
+        const res = await fetch('pages.json');
+        const pages = await res.json();
+        const items = await Promise.all(pages.map(async p => {
+          const txt = await fetchText(p);
+          const first = (txt.split(/\r?\n/)[0] || '').replace(/^#\s*/,'').trim() || p;
+          return { path: p, title: first };
+        }));
+        listEl.innerHTML = items.map(it => `<li><a href="#" data-path="${it.path}">${it.title}</a></li>`).join('');
+      } catch (e) {
+        listEl.textContent = 'Failed to load pages list. Open DevTools for details.';
+        console.error(e);
+      }
+    }
+
+    function renderMarkdown(md) {
+      const lines = md.split(/\r?\n/);
+      const html = [];
+      for (const line of lines) {
+        if (/^#\s+/.test(line)) html.push('<h1>'+escapeHtml(line.replace(/^#\s+/,''))+'</h1>');
+        else if (/^##\s+/.test(line)) html.push('<h2>'+escapeHtml(line.replace(/^##\s+/,''))+'</h2>');
+        else if (/^###\s+/.test(line)) html.push('<h3>'+escapeHtml(line.replace(/^###\s+/,''))+'</h3>');
+        else if (line.trim() === '') html.push('');
+        else html.push('<p>'+linkify(escapeHtml(line))+'</p>');
+      }
+      return html.join('\n');
+    }
+
+    function escapeHtml(s){
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    }
+    function linkify(s){
+      return s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+    }
+
+    async function showPage(path){
+      const container = document.getElementById('page');
+      container.innerHTML = 'Loading...';
+      try{
+        const md = await fetchText(path);
+        container.innerHTML = renderMarkdown(md);
+        history.pushState({path}, '', '#'+encodeURIComponent(path));
+      }catch(e){
+        container.textContent = 'Failed to load page. See console for details.';
+        console.error(e);
+      }
+    }
+
+    window.addEventListener('click', (e)=>{
+      const a = e.target.closest('a[data-path]');
+      if(a){
+        e.preventDefault();
+        showPage(a.getAttribute('data-path'));
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', async ()=>{
+      await loadPagesList();
+      const hash = location.hash.startsWith('#') ? decodeURIComponent(location.hash.slice(1)) : '';
+      if(hash) showPage(hash);
+    });
+    window.addEventListener('popstate', (e)=>{
+      const path = (e.state && e.state.path) || (location.hash ? decodeURIComponent(location.hash.slice(1)) : '');
+      if(path) showPage(path);
+    });
+  </script>
 </head>
-<body hx-target="#page" hx-swap="innerHTML">
-    <a href="/articles">Articles</a>
-    <div id="page" hx-get="/articles" hx-trigger="load"></div>
+<body>
+    <h1>Articles</h1>
+    <ul id="list"></ul>
+    <hr>
+    <div id="page"></div>
 </body>
 </html>
