@@ -1,9 +1,8 @@
 # My inspirations
 
-- Ken Robinson's work on education
-- Bret Viktor's work on interface design
-- Da Vinci for his large scope of work across fields
-- Ram Dass on being here now
-- Dalai Lama on ruling with love
-- Bob Ross on oil painting
--
+- Ken Robinson — education reform and creativity
+- Bret Victor — interface design and human-focused tools
+- Leonardo da Vinci — breadth of curiosity and craft
+- Ram Dass — presence and mindfulness
+- The Dalai Lama — compassion and leadership
+- Bob Ross — approachable teaching and painting

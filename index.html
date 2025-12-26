@@ -3,104 +3,156 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Weblog</title>
+  <title>Pages</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:24px;color:#111}
+    h1{font-size:1.5rem;margin-bottom:0.5rem}
+    ul{padding-left:1.2rem}
+    li{margin:0.6rem 0}
+    a{color:#0366d6;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .note{color:#666;font-size:0.9rem}
+    .back{display:inline-block;margin-bottom:1rem}
+    .page{max-width:60ch}
+    img{max-width:100%;height:auto}
+    pre{background:#f6f8fa;padding:12px;border-radius:6px;overflow:auto}
+  </style>
   <script>
-    async function fetchText(path) {
-      const res = await fetch(encodeURI(path));
-      if (!res.ok) throw new Error('Failed to fetch ' + path);
-      return await res.text();
-    }
-
-    async function loadPagesList() {
-      const listEl = document.getElementById('list');
-      listEl.innerHTML = 'Loading...';
-      try {
-        const res = await fetch('pages.json');
-        const pages = await res.json();
-        const items = await Promise.all(pages.map(async p => {
-          const txt = await fetchText(p);
-          const first = (txt.split(/\r?\n/)[0] || '').replace(/^#\s*/,'').trim() || p;
-          return { path: p, title: first };
-        }));
-        listEl.innerHTML = items.map(it => `<li><a href="#" data-path="${it.path}">${it.title}</a></li>`).join('');
-      } catch (e) {
-        listEl.textContent = 'Failed to load pages list. Open DevTools for details.';
-        console.error(e);
-      }
-    }
-
-    function renderMarkdown(md) {
-      const lines = md.split(/\r?\n/);
-      const html = [];
-      for (const line of lines) {
-        if (/^#\s+/.test(line)) html.push('<h1>'+escapeHtml(line.replace(/^#\s+/,''))+'</h1>');
-        else if (/^##\s+/.test(line)) html.push('<h2>'+escapeHtml(line.replace(/^##\s+/,''))+'</h2>');
-        else if (/^###\s+/.test(line)) html.push('<h3>'+escapeHtml(line.replace(/^###\s+/,''))+'</h3>');
-        else if (line.trim() === '') html.push('');
-        else html.push('<p>'+linkify(escapeHtml(line))+'</p>');
-      }
-      return html.join('\n');
-    }
-
     function escapeHtml(s){
       return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
     }
     function linkify(s){
-  return s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-}
+      return s.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1">')
+              .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    }
+    function inlineFormat(s){
+      s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+      s = s.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      return s;
+    }
+    function renderMarkdown(md){
+      const lines = md.replace(/\r\n/g,'\n').split('\n');
+      let html = '';
+      let inList = false;
+      for (let i=0;i<lines.length;i++){
+        const line = lines[i];
+        if(/^```/.test(line)){
+          // code block
+          let code = '';
+          i++;
+          while(i<lines.length && !/^```/.test(lines[i])){ code += lines[i++] + '\n'; }
+          html += '<pre><code>'+escapeHtml(code.trim())+'</code></pre>';
+          continue;
+        }
+        if(/^#{1,6}\s+/.test(line)){
+          const level = line.match(/^#{1,6}/)[0].length;
+          const text = line.replace(/^#{1,6}\s+/,'').trim();
+          html += `<h${level}>${inlineFormat(linkify(escapeHtml(text)))}</h${level}>`;
+          inList = false;
+          continue;
+        }
+        if(/^[-*+]\s+/.test(line)){
+          if(!inList){ html += '<ul>'; inList = true; }
+          const item = line.replace(/^[-*+]\s+/,'').trim();
+          html += '<li>'+inlineFormat(linkify(escapeHtml(item)))+'</li>';
+          continue;
+        }
+        // blank line
+        if(line.trim()===''){ if(inList){ html += '</ul>'; inList=false;} html += '<p></p>'; continue; }
+        // paragraph
+        html += '<p>'+inlineFormat(linkify(escapeHtml(line.trim())))+'</p>';
+      }
+      if(inList) html += '</ul>';
+      return html;
+    }
 
-    async function showPage(path){
-      const container = document.getElementById('page');
-      container.innerHTML = 'Loading...';
+    async function loadList(){
+      const list = document.getElementById('list');
+      list.textContent = 'Loading...';
       try{
-        const md = await fetchText(path);
-        container.innerHTML = renderMarkdown(md);
-        history.pushState({path}, '', '#'+encodeURIComponent(path));
+        const res = await fetch('pages.json');
+        if(!res.ok) throw new Error('Failed to load pages.json');
+        const pages = await res.json();
+        list.innerHTML = pages.map(p => {
+          const parts = p.split('/');
+          const filename = parts[parts.length-1] || p;
+          const title = filename.replace(/\.md$/i,'').replace(/[_-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+          return `<li><a href="#" data-path="${p}">${title}</a></li>`;
+        }).join('\n');
       }catch(e){
-        container.textContent = 'Failed to load page. See console for details.';
+        list.textContent = 'Failed to load pages list.';
         console.error(e);
       }
     }
 
-    window.addEventListener('click', (e)=>{
-      const a = e.target.closest('a[data-path]');
-      if(a){
-        e.preventDefault();
-        showPage(a.getAttribute('data-path'));
+    async function showPage(path){
+      const listView = document.getElementById('list-view');
+      const pageView = document.getElementById('page-view');
+      const pageTitle = document.getElementById('page-title');
+      const pageContent = document.getElementById('page-content');
+      const rawLink = document.getElementById('raw-link');
+
+      listView.style.display = 'none';
+      pageView.style.display = 'block';
+      pageTitle.textContent = '';
+      pageContent.innerHTML = 'Loading...';
+      try{
+        const res = await fetch(path);
+        if(!res.ok) throw new Error('Failed to load '+path);
+        const md = await res.text();
+        // set title from the first heading if available
+        const firstLine = md.split(/\r?\n/)[0]||'';
+        const title = (firstLine.replace(/^#\s+/,'').trim()) || path.split('/').pop();
+        pageTitle.textContent = title;
+        pageContent.innerHTML = renderMarkdown(md);
+        rawLink.href = path;
+        history.pushState({path}, '', '#'+encodeURIComponent(path));
+      }catch(e){
+        pageContent.textContent = 'Failed to load page.';
+        console.error(e);
       }
+    }
+
+    function goHome(){
+      const listView = document.getElementById('list-view');
+      const pageView = document.getElementById('page-view');
+      pageView.style.display = 'none';
+      listView.style.display = 'block';
+      history.pushState({}, '', location.pathname);
+    }
+
+    document.addEventListener('click', (e)=>{
+      const a = e.target.closest('a[data-path]');
+      if(a){ e.preventDefault(); showPage(a.getAttribute('data-path')); }
+      const back = e.target.closest('[data-back]');
+      if(back){ e.preventDefault(); goHome(); }
     });
 
     window.addEventListener('DOMContentLoaded', async ()=>{
-      await loadPagesList();
+      await loadList();
       const hash = location.hash.startsWith('#') ? decodeURIComponent(location.hash.slice(1)) : '';
       if(hash) showPage(hash);
     });
+
     window.addEventListener('popstate', (e)=>{
-      const path = (e.state && e.state.path) || (location.hash ? decodeURIComponent(location.hash.slice(1)) : '');
-      if(path) showPage(path);
+      const path = (e.state && e.state.path) || '';
+      if(path) showPage(path); else goHome();
     });
   </script>
 </head>
 <body>
-    <h1>Articles</h1>
-    <ul id="list"></ul>
-    <hr>
-    <div id="page"></div>
+  <div id="list-view">
+    <h1>All Pages</h1>
+    <p class="note">Listed from <code>pages.json</code></p>
+    <ul id="list" aria-live="polite"></ul>
+  </div>
+
+  <div id="page-view" style="display:none">
+    <div class="back"><a href="#" data-back>&larr; Back to all pages</a></div>
+    <h1 id="page-title"></h1>
+    <div class="page" id="page-content"></div>
+    <p><a id="raw-link" href="#" target="_blank" rel="noopener">Open raw markdown</a></p>
+  </div>
 </body>
 </html>
-
-
-    function strongEmphasis(s){
-      // bold **text** or __text__
-      s = s.replace(/(\*\*|__)(.*?)\1/g, '<strong>$2</strong>');
-      // italic *text* or _text_
-      s = s.replace(/(\*|_)([^\s][^]*?[^\s])\1/g, '<em>$2</em>');
-      // inline code `code`
-      s = s.replace(/`([^`]+)`/g, (_,c)=>'<code>'+escapeHtml(c)+'</code>');
-      return s;
-    }
-
-    function inline(text){
-      return strongEmphasis(linkify(escapeHtml(text)));
-    }
-

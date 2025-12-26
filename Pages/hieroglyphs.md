@@ -1,22 +1,20 @@
 # The visual languages of the world
 
-Languages are a standardized frameworks for information exchange.
+Languages are standardized frameworks for information exchange.
 
-The way we communicate is so multi-modal that we take it for granted.
-We use posturing, visual cues, words, enunciations, tone, touch to communicate with each other.
-But when it comes to a computer, we communicate only through code.
-Although current level of skeumorphic interactions are defined to reflect the real world we live in, it does not enable us to interact with computers the same way we interact with physical objects or with other human beings.
+The way we communicate is multi-modal and we often take it for granted. We use posturing, visual cues, words, enunciation, tone, and touch to communicate with each other. When it comes to a computer, we communicate through code. Current skeuomorphic interactions aim to reflect the real world, but they do not enable interactions with computers that match how we interact with physical objects or other people.
 
-Due to this, we are severely limited by the way we communicate information back and forth with a computer.
+Because of this, our communication with computers is limited.
 
-How did two cultures (Egyptian and Chinese) that are so far distant apart, arrived at similar way to express ideas and thoughts.    
+How did two cultures (Egyptian and Chinese), so distant from one another, arrive at similar ways to express ideas and thoughts?
 
-Human visual system is so much more bandwidth for information exchange than our verbal apparatus.
+The human visual system has far more bandwidth for information exchange than our verbal apparatus.
 
-Rosetta stone
+Rosetta Stone
 
 ![Egyptian Hieroglyphs Chart](../Assets/Visual%20Languages/hieroglyps-egyptian.png)
 
-<https://en.wikipedia.org/wiki/History_of_writing#Inventions_of_writing>
-Each historical invention of writing emerged from systems of proto-writing that used ideographic and mnemonic symbols but were not capable of fully recording spoken language. True writing, where the content of linguistic utterances can be accurately reconstructed by later readers, is a later development. As proto-writing is not capable of fully reflecting the grammar and lexicon used in languages, it is often only capable of encoding broad or imprecise information.
+https://en.wikipedia.org/wiki/History_of_writing#Inventions_of_writing
+
+Each historical invention of writing emerged from systems of proto-writing that used ideographic and mnemonic symbols but were not capable of fully recording spoken language. True writing, where the content of linguistic utterances can be accurately reconstructed by later readers, is a later development. As proto-writing is not capable of fully reflecting grammar and lexicon used in languages, it is often only capable of encoding broad or imprecise information.
 
