@@ -37,14 +37,28 @@
       let inList = false;
       for (let i=0;i<lines.length;i++){
         const line = lines[i];
+        // code block
         if(/^```/.test(line)){
-          // code block
           let code = '';
           i++;
           while(i<lines.length && !/^```/.test(lines[i])){ code += lines[i++] + '\n'; }
           html += '<pre><code>'+escapeHtml(code.trim())+'</code></pre>';
           continue;
         }
+        // blockquote
+        if(/^>\s?/.test(line)){
+          let quoteLines = [];
+          while(i<lines.length && /^>\s?/.test(lines[i])){
+            quoteLines.push(lines[i].replace(/^>\s?/,'').trim());
+            i++;
+          }
+          i--; // step back one because outer for-loop will increment
+          const quoteHtml = quoteLines.map(l => '<p>'+inlineFormat(linkify(escapeHtml(l)))+'</p>').join('');
+          html += '<blockquote>'+quoteHtml+'</blockquote>';
+          inList = false;
+          continue;
+        }
+        // headings
         if(/^#{1,6}\s+/.test(line)){
           const level = line.match(/^#{1,6}/)[0].length;
           const text = line.replace(/^#{1,6}\s+/,'').trim();
@@ -52,6 +66,7 @@
           inList = false;
           continue;
         }
+        // lists
         if(/^[-*+]\s+/.test(line)){
           if(!inList){ html += '<ul>'; inList = true; }
           const item = line.replace(/^[-*+]\s+/,'').trim();
@@ -98,7 +113,7 @@
       pageTitle.textContent = '';
       pageContent.innerHTML = 'Loading...';
       try{
-        const res = await fetch(path);
+        const res = await fetch(encodeURI(path));
         if(!res.ok) throw new Error('Failed to load '+path);
         const md = await res.text();
         // set title from the first heading if available
@@ -106,7 +121,7 @@
         const title = (firstLine.replace(/^#\s+/,'').trim()) || path.split('/').pop();
         pageTitle.textContent = title;
         pageContent.innerHTML = renderMarkdown(md);
-        rawLink.href = path;
+        rawLink.href = encodeURI(path);
         history.pushState({path}, '', '#'+encodeURIComponent(path));
       }catch(e){
         pageContent.textContent = 'Failed to load page.';
